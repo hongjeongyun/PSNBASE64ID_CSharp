@@ -12,17 +12,19 @@ public static class PSNIDBASE64
     static readonly string CLIENT_ID = "ba495a24-818c-472b-b12d-ff231c1b5745";
     static readonly string CLIENT_SECRET = "mvaiZkRsAsI1IBkY";
     static readonly string TOKEN_URL = "https://auth.api.sonyentertainmentnetwork.com/2.0/oauth/token";
-    public static string LOGIN = $"https://auth.api.sonyentertainmentnetwork.com/2.0/oauth/authorize?service_entity=urn:service-entity:psn&response_type=code&client_id={CLIENT_ID}&redirect_uri=https://remoteplay.dl.playstation.net/remoteplay/redirect&scope=psn:clientapp&request_locale=en_US&ui=pr&service_logo=ps&layout_type=popup&smcid=remoteplay&prompt=always&PlatformPrivacyWs1=minimal&";
-    private static Uri u;    
-    public static string GetBase64ID(string uri)
-    {                
-        try { u = new Uri(uri);}
+    //Open the following LOGIN_URL in your Browser and log in
+    public static string LOGIN_URL = $"https://auth.api.sonyentertainmentnetwork.com/2.0/oauth/authorize?service_entity=urn:service-entity:psn&response_type=code&client_id={CLIENT_ID}&redirect_uri=https://remoteplay.dl.playstation.net/remoteplay/redirect&scope=psn:clientapp&request_locale=en_US&ui=pr&service_logo=ps&layout_type=popup&smcid=remoteplay&prompt=always&PlatformPrivacyWs1=minimal&";
+    //After logging in, when the page shows "redirect", Use url    
+    public static string GetBase64ID(string redirect_url)
+    {
+        Uri redirect;
+        try { redirect = new Uri(redirect_url);}
         catch (Exception){ return "uri invalid"; }        
         
-        if (!u.Query.Contains("code"))
+        if (!redirect.Query.Contains("code"))
             return "url did not contain code parameter";
 
-        var code = HttpUtility.ParseQueryString(u.Query).Get("code");                
+        var code = HttpUtility.ParseQueryString(redirect.Query).Get("code");                
         var client = new HttpClient();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"{CLIENT_ID}:{CLIENT_SECRET}")));
         var body = $"grant_type=authorization_code&code={code}&redirect_uri=https://remoteplay.dl.playstation.net/remoteplay/redirect&";
